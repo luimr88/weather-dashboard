@@ -2,3 +2,16 @@
     max-width: 4%;
     height: auto;
 }
+
+.badge.bg-secondary {
+    background-color: orange!important;
+}
+
+.badge.bg-info {
+    background-color: violet!important;
+}
+
+/* .card.col.text-center img {
+    max-width: 50%;
+    max-height: 50%;
+} */
