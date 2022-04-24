@@ -3,6 +3,7 @@ var searchInput = document.getElementById("search-input");
 // var currentWeatherEl = $("current-weather");
 //var currentWeatherCity = document.getElementById("city-name");
 
+var savedCity = JSON.parse(localStorage.getItem('savedCity')) || [];
 const APIKey = "2b1e92a1c0dec53ca23b0b3b62b71733";
 
 var getCityInput = function (event) {
@@ -24,8 +25,14 @@ var getCityWeather = function (cityName) {
             response.json().then(function (data) {
                 var lat = data.coord.lat;
                 var lon = data.coord.lon;
-                console.log(lon);
-                console.log(lat);
+                var city = data.name;
+                //savedHistory();
+                if (!savedCity.includes(city)) {
+                    // savedHistory();
+                    searchButtons(city);
+                    savedHistory();
+                }
+                // searchButtons(city);
                 var apiUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=" + lat + "&lon=" + lon + "&units=imperial&appid=" + APIKey;
                 fetch(apiUrl).then(function (response) {
                     if (response.ok) {
@@ -110,8 +117,34 @@ var futureForecast = function (data) {
 
 }
 
+var searchButtons = function (city) {
+    var searchBtn = $("<button>").attr('class', "btn btn-secondary").text(city);
+    $("#recent-search").append(searchBtn);
+    if (!savedCity.includes(city)) {
+        savedCity.push(city);
+    }
+}
+
+var savedHistory = function () {
+    // savedCity.push(city);
+    localStorage.setItem('savedCity', JSON.stringify(savedCity));
+}
+
+var loadHistory = function () {
+    var savedCity = JSON.parse(localStorage.getItem("savedCity"));
+    for (i = 0; i < savedCity.length; i++) {
+        searchButtons(savedCity[i]);
+    }
+}
+
 var clearForecast = function () {
     $("#current-weather").remove();
 }
 
 userFormEl.addEventListener("submit", getCityInput);
+$("#recent-search").on("click", "button", function (event) {
+    cityNombre = event.target.innerHTML;
+    console.log(cityNombre);
+    getCityWeather(cityNombre);
+});
+loadHistory();
