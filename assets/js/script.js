@@ -1,11 +1,10 @@
 var userFormEl = document.getElementById("user-form");
 var searchInput = document.getElementById("search-input");
-// var currentWeatherEl = $("current-weather");
-//var currentWeatherCity = document.getElementById("city-name");
 
 var savedCity = JSON.parse(localStorage.getItem('savedCity')) || [];
 const APIKey = "2b1e92a1c0dec53ca23b0b3b62b71733";
 
+// Gets city from user input on click event
 var getCityInput = function (event) {
     event.preventDefault();
     var cityName = searchInput.value.trim();
@@ -18,6 +17,7 @@ var getCityInput = function (event) {
     }
 };
 
+// Calls openweathermap api and gets data
 var getCityWeather = function (cityName) {
     var apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&units=imperial&appid=" + APIKey;
     fetch(apiUrl).then(function (response) {
@@ -26,13 +26,10 @@ var getCityWeather = function (cityName) {
                 var lat = data.coord.lat;
                 var lon = data.coord.lon;
                 var city = data.name;
-                //savedHistory();
                 if (!savedCity.includes(city)) {
-                    // savedHistory();
                     searchButtons(city);
-                    savedHistory();
+                    saveHistory();
                 }
-                // searchButtons(city);
                 var apiUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=" + lat + "&lon=" + lon + "&units=imperial&appid=" + APIKey;
                 fetch(apiUrl).then(function (response) {
                     if (response.ok) {
@@ -47,8 +44,12 @@ var getCityWeather = function (cityName) {
             alert("City Not Found");
         }
     })
+    .catch(function (error) {
+        alert("Unable to connect to OpenWeather");
+    });
 };
 
+// Dynamically creates the current weather for the city
 var displayWeather = function (currentData, data) {
     $("#current-weather").text("");
     var currentDate = moment(currentData.current.dt * 1000).format("MM.DD.YYYY");
@@ -90,6 +91,7 @@ var displayWeather = function (currentData, data) {
     indexEl.append(uvEl);
 };
 
+// Dynamically creates the 5-day forecast for the city
 var futureForecast = function (data) {
     $("#future-weather").text("");
     var forecastTitle = $("<h2>").text("5-Day Forecast:");
@@ -117,6 +119,7 @@ var futureForecast = function (data) {
 
 }
 
+// Creates buttons based off of the recent search history
 var searchButtons = function (city) {
     var searchBtn = $("<button>").attr('class', "btn btn-secondary").text(city);
     $("#recent-search").append(searchBtn);
@@ -125,11 +128,12 @@ var searchButtons = function (city) {
     }
 }
 
-var savedHistory = function () {
-    // savedCity.push(city);
+// Saves the user city input to local storage
+var saveHistory = function () {
     localStorage.setItem('savedCity', JSON.stringify(savedCity));
 }
 
+// Makes sure local storage data is maintained even after page refresh
 var loadHistory = function () {
     var savedCity = JSON.parse(localStorage.getItem("savedCity"));
     for (i = 0; i < savedCity.length; i++) {
@@ -137,10 +141,7 @@ var loadHistory = function () {
     }
 }
 
-var clearForecast = function () {
-    $("#current-weather").remove();
-}
-
+// Event listeners
 userFormEl.addEventListener("submit", getCityInput);
 $("#recent-search").on("click", "button", function (event) {
     cityNombre = event.target.innerHTML;
